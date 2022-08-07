@@ -176,25 +176,42 @@ def grade_assignments(submission_path, image, verbose=False, no_kill=False, pdf_
 
         exit = docker.container.wait(container)
 
+        import time
+        time.sleep(0.5)        
+        is_timeout = not timer.is_alive()
+
         if timeout:
             timer.cancel()
 
         if debug:
-            print(docker.container.logs(container))
+            if not is_timeout:
+                print(docker.container.logs(container))
+            else:
+                print(f"Executing '{submission_path}' timed out!")
 
         if not no_kill:
             container.remove()
 
         if exit != 0:
-            raise Exception(f"Executing '{submission_path}' in docker container failed! Exit code: {exit}")
+            if is_timeout:
+                pass
+            else:
+                raise Exception(f"Executing '{submission_path}' in docker container failed! Exit code: {exit}")
 
-        with open(results_path, "rb") as f:
-            scores = pickle.load(f)
+        if is_timeout:
+            scores = {'file': os.path.split(submission_path)[1], 
+                        'msg': 'Timed out! INFINITY LOOP'}
+            df = pd.DataFrame(scores, index = [0])
+        else:
+            with open(results_path, "rb") as f:
+                scores = pickle.load(f)
 
-        scores = scores.to_dict()
-        scores = {t: [scores[t]["score"]] if type(scores[t]) == dict else scores[t] for t in scores}
-        scores["file"] = os.path.split(submission_path)[1]
-        df = pd.DataFrame(scores)
+            scores = scores.to_dict()
+            scores = {t: [scores[t]["score"]] if type(scores[t]) == dict else scores[t] for t in scores}
+            scores["msg"] = "None"
+            scores["file"] = os.path.split(submission_path)[1]
+
+            df = pd.DataFrame(scores)
 
         if pdfs:
             os.makedirs(pdf_dir, exist_ok=True)

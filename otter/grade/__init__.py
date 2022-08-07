@@ -81,8 +81,8 @@ def main(*, path="./", output_dir="./", autograder="./autograder.zip", container
 
     # Merge Dataframes
     output_df = merge_csv(grade_dfs)
-    cols = output_df.columns.tolist()
-    output_df = output_df[cols[-1:] + cols[:-1]]
+    front = ['file', 'msg']
+    output_df = output_df[ front + [ col for col in output_df.columns if col not in front ] ]
 
     # write to CSV file
     output_df.to_csv(os.path.join(output_dir, "final_grades.csv"), index=False)

@@ -35,7 +35,8 @@ def merge_csv(dataframes):
         ``pandas.core.frame.DataFrame``: A merged dataframe resulting from 'stacking' all input dataframes
 
     """
-    final_dataframe = pd.concat(dataframes, axis=0, join='inner').sort_index()
+    final_dataframe = pd.concat(dataframes, axis=0, join='outer').sort_index()
+    final_dataframe.fillna(0, inplace=True)
     return final_dataframe
 
 def prune_images(force=False):
