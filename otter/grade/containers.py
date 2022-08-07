@@ -176,18 +176,21 @@ def grade_assignments(submission_path, image, verbose=False, no_kill=False, pdf_
 
         exit = docker.container.wait(container)
 
-        import time
-        time.sleep(0.5)        
-        is_timeout = not timer.is_alive()
+        if timeout:
+            import time
+            time.sleep(0.5)        
+            is_timeout = not timer.is_alive()
 
         if timeout:
             timer.cancel()
 
         if debug:
-            if not is_timeout:
-                print(docker.container.logs(container))
-            else:
+            if is_timeout:
                 print(f"Executing '{submission_path}' timed out!")
+            elif exit == 1:
+                print(f"'{submission_path}' is corrupted!")
+            else:
+                print(docker.container.logs(container))
 
         if not no_kill:
             container.remove()
@@ -195,12 +198,18 @@ def grade_assignments(submission_path, image, verbose=False, no_kill=False, pdf_
         if exit != 0:
             if is_timeout:
                 pass
+            if exit == 1:
+                pass
             else:
                 raise Exception(f"Executing '{submission_path}' in docker container failed! Exit code: {exit}")
 
         if is_timeout:
             scores = {'file': os.path.split(submission_path)[1], 
                         'msg': 'Timed out! INFINITY LOOP'}
+            df = pd.DataFrame(scores, index = [0])
+        elif exit == 1:
+            scores = {'file': os.path.split(submission_path)[1], 
+                        'msg': 'Submission File was corrupted'}
             df = pd.DataFrame(scores, index = [0])
         else:
             with open(results_path, "rb") as f:
