@@ -198,7 +198,7 @@ def grade_assignments(submission_path, image, verbose=False, no_kill=False, pdf_
         if exit != 0:
             if is_timeout:
                 pass
-            if exit == 1:
+            elif exit == 1:
                 pass
             else:
                 raise Exception(f"Executing '{submission_path}' in docker container failed! Exit code: {exit}")
