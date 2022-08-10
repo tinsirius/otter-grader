@@ -5,7 +5,7 @@ RUN mkdir -p /autograder/source
 ARG BASE_IMAGE
 ENV BASE_IMAGE=$BASE_IMAGE
 ADD run_autograder /autograder/run_autograder
-ADD setup.sh environment.yml requirements.* /autograder/source/
+ADD setup.sh environment.* requirements.* /autograder/source/
 RUN dos2unix /autograder/run_autograder /autograder/source/setup.sh && \
     chmod +x /autograder/run_autograder && \
     apt-get update && bash /autograder/source/setup.sh && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
