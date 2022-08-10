@@ -1,2 +1,8 @@
 #!/usr/bin/env bash
+# -u argument is put in because python is not printing out
+# to terminal properly, this is equivalent to setting 
+# the env variable PYTHONUNBUFFERE=0, the answer is from here
+# https://stackoverflow.com/questions/29663459/python-app-does-not-print-anything-when-running-detached-in-docker
+# The default behaviour from otter is in conda, so it is properly
+# already configured in that env to make printing works already
 python -u {{ autograder_dir }}/source/run_otter.py
