@@ -29,8 +29,8 @@ OTTR_BRANCH = "1.1.3"  # this should match a release tag on GitHub
 
 def main(*, tests_dir="./tests", output_path="autograder.zip", config=None, no_config=False, 
          lang="python", requirements=None, no_requirements=False, overwrite_requirements=False, 
-         environment=None, no_environment=False, username=None, password=None, token=None, files=[], 
-         assignment=None, plugin_collection=None):
+         environment=None, no_environment=False, username=None, password=None, token=None, 
+         no_conda = False, files=[], assignment=None, plugin_collection=None):
     """
     Runs Otter Generate
 
@@ -60,6 +60,10 @@ def main(*, tests_dir="./tests", output_path="autograder.zip", config=None, no_c
         ``ValueError``: if the configurations specify a Gradescope course ID or assignment ID but not
             both
     """
+    if no_conda:
+        no_environment = True
+        no_requirements = True
+
     # read in otter_config.json
     if config is None and os.path.isfile("otter_config.json") and not no_config:
         config = "otter_config.json"
@@ -99,7 +103,10 @@ def main(*, tests_dir="./tests", output_path="autograder.zip", config=None, no_c
     # update language
     options["lang"] = options.get("lang", lang.lower())
 
-    template_dir = os.path.join(TEMPLATE_DIR, options["lang"])
+    if no_conda:
+        template_dir = os.path.join(TEMPLATE_DIR, "no_conda")
+    else:
+        template_dir = os.path.join(TEMPLATE_DIR, options["lang"])
 
     templates = {}
     for fn in os.listdir(template_dir):
