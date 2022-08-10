@@ -1,1 +1,2 @@
+#!/usr/bin/env bash
 python -u {{ autograder_dir }}/source/run_otter.py
