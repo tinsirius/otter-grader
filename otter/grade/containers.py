@@ -188,6 +188,7 @@ def grade_assignments(submission_path, image, verbose=False, no_kill=False, pdf_
             if is_timeout:
                 print(f"Executing '{submission_path}' timed out!")
             elif exit == 1:
+                print(docker.container.logs(container))
                 print(f"'{submission_path}' is corrupted!")
             else:
                 print(docker.container.logs(container))
