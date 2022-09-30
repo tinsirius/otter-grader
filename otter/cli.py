@@ -90,6 +90,7 @@ defaults = generate.__kwdefaults__
 @click.option("--password", help="Gradescope password for generating a token")
 @click.option("--token", help="Gradescope token for uploading PDFs")
 @click.option("--no-conda", is_flag=True, help="Disable grading in conda environment")
+@click.option("--import-run", default = None, type=click.Path(exists=True, file_okay=True), help="Path to import")
 @click.argument("files", nargs=-1)
 def generate_cli(*args, **kwargs):
     """

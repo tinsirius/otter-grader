@@ -30,7 +30,7 @@ OTTR_BRANCH = "1.1.3"  # this should match a release tag on GitHub
 def main(*, tests_dir="./tests", output_path="autograder.zip", config=None, no_config=False, 
          lang="python", requirements=None, no_requirements=False, overwrite_requirements=False, 
          environment=None, no_environment=False, username=None, password=None, token=None, 
-         no_conda = False, files=[], assignment=None, plugin_collection=None):
+         no_conda = False, import_run = None, files=[], assignment=None, plugin_collection=None):
     """
     Runs Otter Generate
 
@@ -53,6 +53,8 @@ def main(*, tests_dir="./tests", output_path="autograder.zip", config=None, no_c
         files (``list[str]``): list of file paths to add to the zip file
         assignment (``otter.assign.assignment.Assignment``, optional): the assignment configurations
             if used with Otter Assign
+        no_conda (``bool``): disable conda environment inside your docker 
+        import_run (``str``): which file to import in your run_otter.py in main. 
         **kwargs: ignored kwargs (a remnant of how the argument parser is built)
 
     Raises:
@@ -113,7 +115,15 @@ def main(*, tests_dir="./tests", output_path="autograder.zip", config=None, no_c
         fp = os.path.join(template_dir, fn)
         if os.path.isfile(fp): # prevents issue w/ finding __pycache__ in template dirs
             with open(fp) as f:
-                templates[fn] = Template(f.read())
+                if import_run is not None:
+                    if os.path.basename(fp) == "run_otter.py":
+                        tempf = f.read()
+                        tempf = "from " + "files." + '.'.join(pathlib.Path(import_run).with_suffix('').parts) + " import *\n" + tempf
+                        templates[fn] = Template(tempf)
+                    else: 
+                        templates[fn] = Template(f.read())
+                else:
+                    templates[fn] = Template(f.read())
 
     template_context = {
         "autograder_dir": options['autograder_dir'],
